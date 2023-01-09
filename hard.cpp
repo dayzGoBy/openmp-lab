@@ -26,7 +26,7 @@ void calculate_threshold(uint32_t n, std::vector<uint32_t> &exp, std::vector<uin
     {
         std::vector<uint32_t> thread_private_ans(3, 0);
         double thread_private_dev = 0;
-#pragma omp for schedule(static, 8)
+#pragma omp for schedule(dynamic)
         for (int th1 = 0; th1 < 254; th1++) {
             for (int th2 = th1 + 1; th2 < 255; th2++) {
                 for (int th3 = th2 + 1; th3 < 256; th3++) {
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<uint32_t> answer(3, UINT32_MAX);
 
-    for(int num_thr = 1; num_thr < 12; num_thr++) {
+    for(int num_thr = 1; num_thr <= 12; num_thr++) {
         printf("Time (%i thread(s)): %g ms\n", num_thr,
                 measure_time(n, exp, prob, answer, num_thr));
     }
