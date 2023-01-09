@@ -30,13 +30,13 @@ void calculate_threshold(uint32_t n, std::vector<uint32_t> &exp, std::vector<uin
         for (int th1 = 0; th1 < 254; th1++) {
             for (int th2 = th1 + 1; th2 < 255; th2++) {
                 for (int th3 = th2 + 1; th3 < 256; th3++) {
-                    double p1, p2, p3, p4;
+                    uint32_t p1, p2, p3, p4;
                     double m1, m2, m3, m4;
 
-                    p1 = (double) prob[th1] / n;
-                    p2 = (double) (prob[th2] - prob[th1]) / n;
-                    p3 = (double) (prob[th3] - prob[th2]) / n;
-                    p4 = (double) (prob.back() - prob[th3]) / n;
+                    p1 = prob[th1];
+                    p2 = prob[th2] - prob[th1];
+                    p3 = prob[th3] - prob[th2];
+                    p4 = prob.back() - prob[th3];
 
                     m1 = (double) exp[th1] / prob[th1];
                     m2 = (double) (exp[th2] - exp[th1]) / (prob[th2] - prob[th1]);
@@ -79,7 +79,7 @@ double measure_time(uint32_t n, std::vector<uint32_t> &exp, std::vector<uint32_t
 
         avg_time += (omp_get_wtime() - start);
     }
-    return avg_time / 16;
+    return avg_time * 1000 / 16;
 }
 
 int main(int argc, char *argv[]) {
@@ -131,10 +131,11 @@ int main(int argc, char *argv[]) {
 
     std::vector<uint32_t> answer(3, UINT32_MAX);
 
-    /*for(int num_thr = 1; num_thr < 12; num_thr++) {
-        std::cout << measure_time(n, exp, prob, answer, num_thr) << std::endl;
-    }*/
-    calculate_threshold(n, exp, prob, answer, 4);
+    for(int num_thr = 1; num_thr < 12; num_thr++) {
+        printf("Time (%i thread(s)): %g ms\n", num_thr,
+                measure_time(n, exp, prob, answer, num_thr));
+    }
+
 
     std::cout << answer[0] << std::endl;
     std::cout << answer[1] << std::endl;
