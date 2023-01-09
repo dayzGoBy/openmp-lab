@@ -21,26 +21,26 @@ void calculate_threshold(uint32_t n, std::vector<uint32_t> &exp, std::vector<uin
     double deviation = 0;
     double avg = (double) exp.back() / n;
 
-#pragma omp parallel num_threads(num_thr) default(none) shared(exp, prob, deviation, n, avg, answer)
+#pragma omp parallel num_threads(num_thr) default(shared)
     {
-#pragma omp for schedule(static)
-        for (int th1 = 0; th1 < 253; th1++) {
-            std::vector<uint32_t> thread_private_ans(3, 0);
-            double thread_private_dev = 0;
-            for (int th2 = th1 + 1; th2 < 254; th2++) {
-                for (int th3 = th2 + 1; th3 < 255; th3++) {
+        std::vector<uint32_t> thread_private_ans(3, 0);
+        double thread_private_dev = 0;
+#pragma omp for schedule(static, 8)
+        for (int th1 = 0; th1 < 254; th1++) {
+            for (int th2 = th1 + 1; th2 < 255; th2++) {
+                for (int th3 = th2 + 1; th3 < 256; th3++) {
                     double p1, p2, p3, p4;
                     double m1, m2, m3, m4;
 
+                    p1 = (double) prob[th1] / n;
                     p2 = (double) (prob[th2] - prob[th1]) / n;
                     p3 = (double) (prob[th3] - prob[th2]) / n;
                     p4 = (double) (prob.back() - prob[th3]) / n;
-                    p1 = (double) prob[th1] / n;
 
+                    m1 = (double) exp[th1] / prob[th1];
                     m2 = (double) (exp[th2] - exp[th1]) / (prob[th2] - prob[th1]);
                     m3 = (double) (exp[th3] - exp[th2]) / (prob[th3] - prob[th2]);
                     m4 = (double) (exp.back() - exp[th3]) / (prob.back() - prob[th3]);
-                    m1 = (double) exp[th1] / prob[th1];
 
                     double cur_deviation = p1 * (m1 - avg) * (m1 - avg) +
                                            p2 * (m2 - avg) * (m2 - avg) +
@@ -55,7 +55,9 @@ void calculate_threshold(uint32_t n, std::vector<uint32_t> &exp, std::vector<uin
                     }
                 }
             }
+        }
 #pragma omp critical
+        {
             if (thread_private_dev > deviation) {
                 deviation = thread_private_dev;
                 answer[0] = thread_private_ans[0];
@@ -81,7 +83,20 @@ double measure_time(uint32_t n, std::vector<uint32_t> &exp, std::vector<uint32_t
 
 int main(int argc, char *argv[]) {
     std::ifstream in;
-    in.open(R"(C:\Users\User\CLionProjects\itmo-comp-arch22-lab4-dayzGoBy\test_data\in.pgm)");
+    in.open(argv[1]);
+
+    if (!in.is_open()) {
+        std::cout << "error while opening input file" << std::endl;
+        exit(1);
+    }
+
+    std::ofstream out;
+    out.open(argv[2]);
+
+    if (!out.is_open()) {
+        std::cout << "error while opening output file" << std::endl;
+        exit(1);
+    }
 
     std::string s;
     getline(in, s);
@@ -94,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::vector<uint8_t>> image(width, std::vector<uint8_t>(height));
     std::vector<uint32_t> histogram(256, 0);
-    std::vector<uint32_t> prob(256, 0); // prob[t] is the probability function (multiplied by img size)
+    std::vector<uint32_t> prob(256, 0);
     std::vector<uint32_t> exp(256, 0);
 
     for (int x = 0; x < height; ++x) {
@@ -119,13 +134,11 @@ int main(int argc, char *argv[]) {
         std::cout << measure_time(n, exp, prob, answer, num_thr) << std::endl;
     }*/
     calculate_threshold(n, exp, prob, answer, 12);
+    //std::cout << measure_time(n, exp, prob, answer, 12) << std::endl;
 
     std::cout << answer[0] << std::endl;
     std::cout << answer[1] << std::endl;
     std::cout << answer[2] << std::endl;
-
-    std::ofstream out;
-    out.open(R"(C:\Users\User\CLionProjects\itmo-comp-arch22-lab4-dayzGoBy\res.pgm)");
 
     out << "P5\n";
     out << width << " " << height << "\n";
@@ -134,7 +147,7 @@ int main(int argc, char *argv[]) {
     for (int x = 0; x < height; x++) {
         for (int y = 0; y < width; y++) {
             char z = convert(answer, image[y][x]);
-            out.write((char *) &z, sizeof(char));
+            out.write(&z, sizeof(char));
         }
     }
     out.close();
