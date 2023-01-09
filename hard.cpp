@@ -69,13 +69,53 @@ void calculate_threshold(uint32_t n, std::vector<uint32_t> &exp, std::vector<uin
     }
 }
 
+void calculate_threshold_no_omp(uint32_t n, std::vector<uint32_t> &exp, std::vector<uint32_t> &prob,
+                                std::vector<uint32_t> &answer) {
+
+    double deviation = 0;
+    double avg = (double) exp.back() / n;
+
+    for (int th1 = 0; th1 < 254; th1++) {
+        for (int th2 = th1 + 1; th2 < 255; th2++) {
+            for (int th3 = th2 + 1; th3 < 256; th3++) {
+                uint32_t p1, p2, p3, p4;
+                double m1, m2, m3, m4;
+
+                p1 = prob[th1];
+                p2 = prob[th2] - prob[th1];
+                p3 = prob[th3] - prob[th2];
+                p4 = prob.back() - prob[th3];
+
+                m1 = (double) exp[th1] / prob[th1];
+                m2 = (double) (exp[th2] - exp[th1]) / (prob[th2] - prob[th1]);
+                m3 = (double) (exp[th3] - exp[th2]) / (prob[th3] - prob[th2]);
+                m4 = (double) (exp.back() - exp[th3]) / (prob.back() - prob[th3]);
+
+                double cur_deviation = p1 * (m1 - avg) * (m1 - avg) +
+                                       p2 * (m2 - avg) * (m2 - avg) +
+                                       p3 * (m3 - avg) * (m3 - avg) +
+                                       p4 * (m4 - avg) * (m4 - avg);
+
+                if (cur_deviation > deviation) {
+                    deviation = cur_deviation;
+                    answer[0] = th1;
+                    answer[1] = th2;
+                    answer[2] = th3;
+                }
+            }
+        }
+    }
+
+}
+
 double measure_time(uint32_t n, std::vector<uint32_t> &exp, std::vector<uint32_t> &prob,
                     std::vector<uint32_t> &answer, int num_thr) {
     double avg_time = 0;
     for (int i = 0; i < 16; ++i) {
         double start = omp_get_wtime();
 
-        calculate_threshold(n, exp, prob, answer, num_thr);
+        num_thr == -1 ? calculate_threshold_no_omp(n, exp, prob, answer)
+                        : calculate_threshold(n, exp, prob, answer, num_thr);
 
         avg_time += (omp_get_wtime() - start);
     }
@@ -131,10 +171,10 @@ int main(int argc, char *argv[]) {
 
     std::vector<uint32_t> answer(3, UINT32_MAX);
 
-    for(int num_thr = 1; num_thr <= 12; num_thr++) {
-        printf("Time (%i thread(s)): %g ms\n", num_thr,
-                measure_time(n, exp, prob, answer, num_thr));
-    }
+    int num_thr = std::stoi(argv[1]);
+
+    printf("Time (%i thread(s)): %g ms\n", num_thr,
+           measure_time(n, exp, prob, answer, num_thr));
 
 
     std::cout << answer[0] << std::endl;
