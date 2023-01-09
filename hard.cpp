@@ -136,6 +136,7 @@ int main(int argc, char *argv[]) {
 
     if (!out.is_open()) {
         std::cout << "error while opening output file" << std::endl;
+        in.close();
         exit(1);
     }
 
@@ -172,6 +173,11 @@ int main(int argc, char *argv[]) {
     std::vector<uint32_t> answer(3, UINT32_MAX);
 
     int num_thr = std::stoi(argv[1]);
+    if (num_thr < -1) {
+        std::cout << "invalid threads number" << std::endl;
+        out.close();
+        exit(1);
+    }
 
     printf("Time (%i thread(s)): %g ms\n", num_thr,
            measure_time(n, exp, prob, answer, num_thr));
