@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 #include "omp.h"
 
 char convert(std::vector<uint32_t> &a, uint8_t pixel) {
@@ -83,7 +84,7 @@ double measure_time(uint32_t n, std::vector<uint32_t> &exp, std::vector<uint32_t
 
 int main(int argc, char *argv[]) {
     std::ifstream in;
-    in.open(argv[1]);
+    in.open(argv[2]);
 
     if (!in.is_open()) {
         std::cout << "error while opening input file" << std::endl;
@@ -91,7 +92,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::ofstream out;
-    out.open(argv[2]);
+    out.open(argv[3]);
 
     if (!out.is_open()) {
         std::cout << "error while opening output file" << std::endl;
@@ -133,8 +134,7 @@ int main(int argc, char *argv[]) {
     /*for(int num_thr = 1; num_thr < 12; num_thr++) {
         std::cout << measure_time(n, exp, prob, answer, num_thr) << std::endl;
     }*/
-    calculate_threshold(n, exp, prob, answer, 12);
-    //std::cout << measure_time(n, exp, prob, answer, 12) << std::endl;
+    calculate_threshold(n, exp, prob, answer, 4);
 
     std::cout << answer[0] << std::endl;
     std::cout << answer[1] << std::endl;
