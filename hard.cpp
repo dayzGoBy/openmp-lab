@@ -141,13 +141,18 @@ int main(int argc, char *argv[]) {
     }
 
     std::string s;
+    in >> std::noskipws;
     getline(in, s);
 
     uint32_t height, width;
-    in >> width >> height;
+    in >> width >> std::skipws >> height;
     uint32_t n = height * width;
 
+    // some magic to read properly
     getline(in, s);
+    getline(in, s);
+    char nln;
+    in.read(&nln, sizeof(char));
 
     std::vector<std::vector<uint8_t>> image(width, std::vector<uint8_t>(height));
     std::vector<uint32_t> histogram(256, 0);
