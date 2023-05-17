@@ -1,0 +1,60 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.24"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "itmo_comp_arch22_lab4_dayzGoBy",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "itmo_comp_arch22_lab4_dayzGoBy::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-itmo_comp_arch22_lab4_dayzGoBy-Debug-f414fba2556286264574.json",
+					"name" : "itmo_comp_arch22_lab4_dayzGoBy",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/User/CLionProjects/itmo-comp-arch22-lab4-dayzGoBy",
+		"source" : "C:/Users/User/CLionProjects/itmo-comp-arch22-lab4-dayzGoBy"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

@@ -161,8 +161,9 @@ int main(int argc, char *argv[]) {
 
     for (int x = 0; x < height; ++x) {
         for (int y = 0; y < width; ++y) {
-            uint8_t pixel;
-            in.read((char *) &pixel, sizeof(uint8_t));
+            char rd;
+            in.read((char *) &rd, 1);
+            uint8_t pixel = rd >= 0 ? rd : (256 + rd);
             image[y][x] = pixel;
             histogram[pixel]++;
         }
@@ -199,7 +200,7 @@ int main(int argc, char *argv[]) {
     for (int x = 0; x < height; x++) {
         for (int y = 0; y < width; y++) {
             char z = convert(answer, image[y][x]);
-            out.write(&z, sizeof(char));
+            out.write(&z, 1);
         }
     }
     out.close();
